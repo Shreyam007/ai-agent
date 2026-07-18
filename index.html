@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reflex — AI Agent for CI/CD Diagnosis & Auto-Fixes</title>
+  <meta name="description" content="Reflex is an autonomous AI agent that monitors GitHub Actions pipelines, reads failure logs, diagnoses root causes, and implements fixes automatically.">
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Syne:wght@700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Preloader Screen -->
+  <div id="preloader">
+    <div class="loader-content">
+      <div class="loader-ring">
+        <svg viewBox="0 0 160 160">
+          <circle class="track" cx="80" cy="80" r="70"></circle>
+          <circle class="progress-bar" id="progress-bar" cx="80" cy="80" r="70"></circle>
+        </svg>
+        <span class="loader-percentage" id="loader-perc">00</span>
+      </div>
+      <div class="loader-text">Loading Model Assets</div>
+    </div>
+  </div>
+
+  <!-- Parallax Monospace Code Background Layer (renders background.md content) -->
+  <div class="code-bg">
+    <pre><code id="code-bg-content">You are given a task to integrate an existing React component in the codebase
+
+The codebase should support:
+- shadcn project structure  
+- Tailwind CSS
+- Typescript
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+
+Determine the default path for components and styles. 
+If default path for components is not /components/ui, provide instructions on why it's important to create this folder
+Copy-paste this component to /components/ui folder:
+```tsx
+container-scroll-animation.tsx
+"use client";
+import React, { useRef } from "react";
+import { useScroll, useTransform, motion, MotionValue } from "framer-motion";
+
+export const ContainerScroll = ({
+  titleComponent,
+  children,
+}: {
+  titleComponent: string | React.ReactNode;
+  children: React.ReactNode;
+}) => {
+  const containerRef = useRef&lt;HTMLDivElement&gt;(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+  });
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth &lt;= 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+    };
+  }, []);
+
+  const scaleDimensions = () => {
+    return isMobile ? [0.7, 0.9] : [1.05, 1];
+  };
+
+  const rotate = useTransform(scrollYProgress, [0, 1], [20, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], scaleDimensions());
+  const translate = useTransform(scrollYProgress, [0, 1], [0, -100]);
+
+  return (
+    &lt;div
+      className="h-[60rem] md:h-[80rem] flex items-center justify-center relative p-2 md:p-20"
+      ref={containerRef}
+    &gt;
+      &lt;div
+        className="py-10 md:py-40 w-full relative"
+        style={{
+          perspective: "1000px",
+        }}
+      &gt;
+        &lt;Header translate={translate} titleComponent={titleComponent} /&gt;
+        &lt;Card rotate={rotate} translate={translate} scale={scale}&gt;
+          {children}
+        &lt;/Card&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};
+...</code></pre>
+  </div>
+
+  <!-- Header Section -->
+  <header>
+    <a href="#" class="logo">REFLEX.AI</a>
+    <nav>
+      <a href="#sec-hero">Agent</a>
+      <a href="#sec-step-1">Detection</a>
+      <a href="#sec-step-3">Investigation</a>
+      <a href="#sec-step-4">Diagnosis</a>
+      <a href="#sec-step-5">Action</a>
+      <a href="#sec-step-6">Dashboard</a>
+    </nav>
+  </header>
+
+  <!-- Pinned Canvas for Scroll-Linked Frames -->
+  <div class="canvas-wrapper">
+    <canvas id="robot-canvas"></canvas>
+  </div>
+
+  <!-- Smooth Scrollable Container -->
+  <div class="scroll-container">
+    
+    <!-- Hero Section -->
+    <section class="section" id="sec-hero">
+      <div class="hero-title-container">
+        <h1 class="hero-title" id="hero-title-1">REFLEX</h1>
+        <h1 class="hero-title" id="hero-title-2">AGENT</h1>
+        <p class="hero-subtitle">
+          <strong>Reflex</strong> — an AI agent that diagnoses and fixes CI/CD failures automatically.
+          <br><br>
+          <span style="font-size: 0.95rem; opacity: 0.7; font-weight: 300; display: block; line-height: 1.6;">
+            Monitors your GitHub Actions pipelines, reads the failure logs, finds the root cause, and auto-retries, comments the fix, or alerts your team — before you even open your laptop.
+          </span>
+        </p>
+        
+        <!-- Scroll indicator -->
+        <div class="scroll-indicator" id="hero-scroll-indicator">
+          <span>Scroll to deploy</span>
+          <div class="line"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 1: Pipeline runs -->
+    <section class="section" id="sec-step-1">
+      <div class="feature-content" id="feat-1">
+        <span class="feature-num">01 // CODE TRIGGER</span>
+        <h2 class="feature-title">Pipeline runs</h2>
+        <p class="feature-desc">
+          Your CI/CD pipeline runs as usual on GitHub Actions. Reflex silently hooks into workflow webhooks, keeping track of job runs in the background.
+        </p>
+      </div>
+    </section>
+
+    <!-- Step 2: Instant detection -->
+    <section class="section" id="sec-step-2">
+      <div class="feature-content" id="feat-2">
+        <span class="feature-num">02 // INSTANT DETECTION</span>
+        <h2 class="feature-title">Real-time alerts</h2>
+        <p class="feature-desc">
+          The moment it fails, the agent knows immediately — no waiting, no manual checking. An absolute zero latency connection ensures analysis begins instantly.
+        </p>
+      </div>
+    </section>
+
+    <!-- Step 3: Investigates the failure -->
+    <section class="section" id="sec-step-3">
+      <div class="feature-content" id="feat-3">
+        <span class="feature-num">03 // INVESTIGATION</span>
+        <h2 class="feature-title">Scrubs Logs & Code</h2>
+        <p class="feature-desc">
+          It pulls the logs and the code changes, and quietly scrubs out anything sensitive like API keys, credentials, or private configuration before looking further.
+        </p>
+      </div>
+    </section>
+
+    <!-- Step 4: Diagnoses the root cause -->
+    <section class="section" id="sec-step-4">
+      <div class="feature-content" id="feat-4">
+        <span class="feature-num">04 // DIAGNOSIS</span>
+        <h2 class="feature-title">LLM Analysis</h2>
+        <p class="feature-desc">
+          An LLM reads the evidence and figures out exactly what broke and why — with a confidence score attached to its logic, ensuring actionable technical recommendations.
+        </p>
+      </div>
+    </section>
+
+    <!-- Step 5: Takes the right action -->
+    <section class="section" id="sec-step-5">
+      <div class="feature-content" id="feat-5">
+        <span class="feature-num">05 // RESPONSE</span>
+        <h2 class="feature-title">Executes Fixes</h2>
+        <p class="feature-desc">
+          Depending on confidence: it either re-runs the pipeline automatically, comments the patch directly on your pull request, or pings your developer team on Slack.
+        </p>
+      </div>
+    </section>
+
+    <!-- Step 6: Tracks everything live -->
+    <section class="section" id="sec-step-6">
+      <div class="feature-content" id="feat-6">
+        <span class="feature-num">06 // LIVE DASHBOARD</span>
+        <h2 class="feature-title">Tracks everything live</h2>
+        <p class="feature-desc">
+          Every failure, diagnosis, and decision shows up in real time on a dashboard — including metrics on whether the agent's fixes successfully repaired the builds over time.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- GSAP, ScrollTrigger & Lenis Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
