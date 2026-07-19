@@ -214,6 +214,14 @@ document.addEventListener("DOMContentLoaded", () => {
       duration: 0.25 // completes early (25% of scroll)
     }, 0);
 
+    // Shift canvas model back to the center during the Team section entry
+    scrollTl.to(".canvas-wrapper", {
+      x: "0vw",
+      scale: 0.95,
+      ease: "power1.inOut",
+      duration: 0.15
+    }, 0.85);
+
     // 3. Fade out Hero elements on scroll
     gsap.to(".hero-title-container", {
       opacity: 0,
@@ -272,18 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
           scrub: true
         }
       });
-    });
-
-    // 5. Fade out canvas wrapper when entering the team section
-    gsap.to(".canvas-wrapper", {
-      opacity: 0,
-      ease: "power2.inOut",
-      scrollTrigger: {
-        trigger: "#sec-team",
-        start: "top 80%",
-        end: "top 40%",
-        scrub: true
-      }
     });
 
     // 6. Initialize interactive profile cards tilt

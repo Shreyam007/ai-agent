@@ -144,6 +144,15 @@ header {
   letter-spacing: -0.03em;
   color: var(--text-primary);
   text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 nav {
@@ -463,11 +472,12 @@ nav a:hover {
   mask-repeat: repeat;
   mask-size: 150%;
   mask-position: top calc(200% - (var(--background-y) * 5)) left calc(100% - var(--background-x));
-  transition: filter 0.8s ease;
+  transition: filter 0.8s ease, opacity 0.8s ease;
   filter: brightness(0.66) contrast(1.33) saturate(0.33) opacity(0.5);
   animation: holo-bg 18s linear infinite;
   animation-play-state: running;
   mix-blend-mode: color-dodge;
+  opacity: 0.05;
 }
 
 .pc-shine,
@@ -532,6 +542,7 @@ nav a:hover {
 .pc-card.active .pc-shine {
   filter: brightness(0.85) contrast(1.5) saturate(0.5);
   animation-play-state: paused;
+  opacity: 0.18;
 }
 
 .pc-card:hover .pc-shine::before,
@@ -589,10 +600,17 @@ nav a:hover {
   mix-blend-mode: overlay;
   filter: brightness(0.8) contrast(1.2);
   z-index: 4;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.pc-card:hover .pc-glare,
+.pc-card.active .pc-glare {
+  opacity: 0.25;
 }
 
 .pc-avatar-content {
-  mix-blend-mode: luminosity;
+  mix-blend-mode: normal;
   overflow: visible;
   transform: translateZ(2);
   backface-visibility: hidden;
@@ -684,6 +702,12 @@ nav a:hover {
   line-height: 1;
 }
 
+.pc-social-buttons {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
 .pc-contact-btn {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -715,15 +739,16 @@ nav a:hover {
     0.1px
   );
   z-index: 5;
-  mix-blend-mode: luminosity;
+  mix-blend-mode: normal;
 }
 
 .pc-details {
   width: 100%;
   position: absolute;
-  top: 2.2em;
+  top: 2.5em;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 
 .pc-details h3 {
@@ -740,7 +765,7 @@ nav a:hover {
 .pc-details p {
   font-weight: 600;
   position: relative;
-  top: -12px;
+  top: 0;
   white-space: nowrap;
   font-size: 13px;
   margin: 0 auto;
