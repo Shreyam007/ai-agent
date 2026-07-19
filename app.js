@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
 
         positions.push(x, y, z);
-        colors.push(0.8, 0.8, 0.8); // Brighter particle color for visibility
+        colors.push(0.55, 0.25, 0.9); // Electric purple particle color
       }
     }
 
@@ -352,17 +352,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 3.5. Parallax effect for code background
-    gsap.to(".code-bg pre", {
-      y: "-25vh",
-      ease: "none",
-      scrollTrigger: {
-        trigger: ".scroll-container",
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true
-      }
-    });
 
     // 4. Feature sections animations (Left-side content triggers)
     const features = gsap.utils.toArray(".feature-content");

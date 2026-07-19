@@ -8,11 +8,11 @@
 }
 
 :root {
-  --bg-color: #000000;
+  --bg-color: #0c0b11; /* Dark charcoal with purple hint */
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.5);
   --text-muted: rgba(255, 255, 255, 0.25);
-  --accent-color: #ffd700; /* Subtle gold matching the robot highlights */
+  --accent-color: #a855f7; /* Cyber purple accent */
   --font-display: 'Syne', sans-serif;
   --font-sans: 'Outfit', sans-serif;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -97,32 +97,6 @@ body {
   font-weight: 600;
 }
 
-/* Code Background Layer */
-.code-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  padding: 5rem 4rem;
-  overflow: hidden;
-  font-family: 'Fira Code', 'Courier New', Courier, monospace;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  color: var(--accent-color);
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0.1) 85%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 40%, rgba(0,0,0,0.1) 85%, rgba(0,0,0,0) 100%);
-}
-
-.code-bg pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
 /* Dotted Surface 3D Wave Background */
 #dotted-surface-bg {
   position: fixed;
@@ -130,7 +104,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1;
+  z-index: -10;
   pointer-events: none;
   opacity: 0.85;
 }
