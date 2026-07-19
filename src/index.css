@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Reset & Core Design System */
 * {
   margin: 0;
@@ -918,3 +922,88 @@ nav a:hover {
     font-size: 1.8rem;
   }
 }
+
+/* ==========================================================================
+   Dashboard Custom Terminal & Canvas Styles
+   ========================================================================== */
+.terminal-border {
+  border: 1px solid #222226;
+}
+
+.terminal-border-active {
+  border: 1px solid #ffffff;
+}
+
+.pulse-purple {
+  background-color: #8b5cf6;
+  box-shadow: 0 0 10px #8b5cf6;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scanline {
+  width: 100%;
+  height: 2px;
+  background: rgba(139, 92, 246, 0.05);
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  animation: scanline 6s linear infinite;
+}
+
+@keyframes scanline {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  background: #ffffff;
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #0c0c0e;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #222226;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #444748;
+}
+

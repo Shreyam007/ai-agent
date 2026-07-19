@@ -2,3 +2,25 @@
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production / Builds
+dist/
+dist-ssr/
+build/
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TypeScript / Cache
+*.tsbuildinfo
+.eslintcache
+.vite
