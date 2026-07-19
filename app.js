@@ -273,6 +273,190 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     });
+
+    // 5. Fade out canvas wrapper when entering the team section
+    gsap.to(".canvas-wrapper", {
+      opacity: 0,
+      ease: "power2.inOut",
+      scrollTrigger: {
+        trigger: "#sec-team",
+        start: "top 80%",
+        end: "top 40%",
+        scrub: true
+      }
+    });
+
+    // 6. Initialize interactive profile cards tilt
+    document.querySelectorAll('.pc-card-wrapper').forEach(cardEl => {
+      new ProfileCardTilt(cardEl);
+    });
+  }
+
+  // ==========================================================================
+  // Profile Card Tilt Engine (vanilla JS port of React Bits component)
+  // ==========================================================================
+  class ProfileCardTilt {
+    constructor(element) {
+      this.wrap = element;
+      this.shell = element.querySelector('.pc-card-shell');
+      this.card = element.querySelector('.pc-card');
+      
+      this.enableTilt = true;
+      this.running = false;
+      this.lastTs = 0;
+      
+      this.currentX = 0;
+      this.currentY = 0;
+      this.targetX = 0;
+      this.targetY = 0;
+      
+      this.DEFAULT_TAU = 0.14;
+      this.INITIAL_TAU = 0.6;
+      this.initialUntil = 0;
+      
+      this.width = 1;
+      this.height = 1;
+      
+      this.init();
+    }
+    
+    init() {
+      this.width = this.shell.clientWidth || 1;
+      this.height = this.shell.clientHeight || 1;
+      
+      // Center card variables initially
+      this.setImmediate(this.width / 2, this.height / 2);
+      
+      // Hover event listeners
+      this.shell.addEventListener('pointerenter', (e) => this.handleEnter(e));
+      this.shell.addEventListener('pointermove', (e) => this.handleMove(e));
+      this.shell.addEventListener('pointerleave', () => this.handleLeave());
+      
+      // Recalculate dimensions on window resize
+      window.addEventListener('resize', () => {
+        this.width = this.shell.clientWidth || 1;
+        this.height = this.shell.clientHeight || 1;
+      });
+      
+      // Trigger initial card wiggle
+      this.beginInitial(1200);
+    }
+    
+    clamp(v, min = 0, max = 100) {
+      return Math.min(Math.max(v, min), max);
+    }
+    
+    adjust(v, fMin, fMax, tMin, tMax) {
+      return parseFloat((tMin + ((tMax - tMin) * (v - fMin)) / (fMax - fMin)).toFixed(3));
+    }
+    
+    setVars(x, y) {
+      const percentX = this.clamp((100 / this.width) * x);
+      const percentY = this.clamp((100 / this.height) * y);
+      
+      const centerX = percentX - 50;
+      const centerY = percentY - 50;
+      
+      const bgX = this.adjust(percentX, 0, 100, 35, 65);
+      const bgY = this.adjust(percentY, 0, 100, 35, 65);
+      
+      const pointerFromCenter = this.clamp(Math.hypot(percentY - 50, percentX - 50) / 50, 0, 1);
+      
+      this.wrap.style.setProperty('--pointer-x', `${percentX}%`);
+      this.wrap.style.setProperty('--pointer-y', `${percentY}%`);
+      this.wrap.style.setProperty('--background-x', `${bgX}%`);
+      this.wrap.style.setProperty('--background-y', `${bgY}%`);
+      this.wrap.style.setProperty('--pointer-from-center', `${pointerFromCenter}`);
+      this.wrap.style.setProperty('--pointer-from-top', `${percentY / 100}`);
+      this.wrap.style.setProperty('--pointer-from-left', `${percentX / 100}`);
+      this.wrap.style.setProperty('--rotate-x', `${-(centerX / 5)}deg`);
+      this.wrap.style.setProperty('--rotate-y', `${centerY / 4}deg`);
+    }
+    
+    setImmediate(x, y) {
+      this.currentX = x;
+      this.currentY = y;
+      this.setVars(x, y);
+    }
+    
+    setTarget(x, y) {
+      this.targetX = x;
+      this.targetY = y;
+      this.startLoop();
+    }
+    
+    toCenter() {
+      this.setTarget(this.width / 2, this.height / 2);
+    }
+    
+    beginInitial(durationMs) {
+      this.initialUntil = performance.now() + durationMs;
+      this.startLoop();
+    }
+    
+    startLoop() {
+      if (this.running) return;
+      this.running = true;
+      this.lastTs = 0;
+      requestAnimationFrame((ts) => this.loop(ts));
+    }
+    
+    loop(ts) {
+      if (!this.running) return;
+      if (this.lastTs === 0) this.lastTs = ts;
+      const dt = (ts - this.lastTs) / 1000;
+      this.lastTs = ts;
+      
+      const tau = ts < this.initialUntil ? this.INITIAL_TAU : this.DEFAULT_TAU;
+      const k = 1 - Math.exp(-dt / tau);
+      
+      this.currentX += (this.targetX - this.currentX) * k;
+      this.currentY += (this.targetY - this.currentY) * k;
+      
+      this.setVars(this.currentX, this.currentY);
+      
+      const stillFar = Math.abs(this.targetX - this.currentX) > 0.05 || Math.abs(this.targetY - this.currentY) > 0.05;
+      
+      if (stillFar) {
+        requestAnimationFrame((ts) => this.loop(ts));
+      } else {
+        this.running = false;
+        this.lastTs = 0;
+      }
+    }
+    
+    handleEnter(e) {
+      this.shell.classList.add('active');
+      this.shell.classList.add('entering');
+      setTimeout(() => {
+        this.shell.classList.remove('entering');
+      }, 180);
+      
+      const rect = this.shell.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      this.setTarget(x, y);
+    }
+    
+    handleMove(e) {
+      const rect = this.shell.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      this.setTarget(x, y);
+    }
+    
+    handleLeave() {
+      this.toCenter();
+      const checkSettle = () => {
+        const settled = Math.hypot(this.targetX - this.currentX, this.targetY - this.currentY) < 0.6;
+        if (settled) {
+          this.shell.classList.remove('active');
+        } else {
+          requestAnimationFrame(checkSettle);
+        }
+      };
+      requestAnimationFrame(checkSettle);
+    }
   }
 
   // Start initialization
