@@ -105,6 +105,120 @@ document.addEventListener("DOMContentLoaded", () => {
     drawFrame(currentFrameIndex);
   }
 
+  // Initialize Dotted Surface 3D Wave Background (ported from background.md)
+  function initDottedBackground() {
+    const container = document.getElementById("dotted-surface-bg");
+    if (!container) return;
+
+    const SEPARATION = 150;
+    const AMOUNTX = 40;
+    const AMOUNTY = 60;
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x000000, 2000, 10000);
+
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      1,
+      10000
+    );
+    camera.position.set(0, 355, 1220);
+
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true
+    });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(scene.fog.color, 0);
+
+    container.appendChild(renderer.domElement);
+
+    // Create particles
+    const positions = [];
+    const colors = [];
+
+    // Create geometry for all particles
+    const geometry = new THREE.BufferGeometry();
+
+    for (let ix = 0; ix < AMOUNTX; ix++) {
+      for (let iy = 0; iy < AMOUNTY; iy++) {
+        const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+        const y = 0; // Will be animated
+        const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+
+        positions.push(x, y, z);
+        colors.push(0.35, 0.35, 0.35); // Subtle grey cyber theme for dark mode
+      }
+    }
+
+    geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(positions, 3)
+    );
+    geometry.setAttribute(
+      'color',
+      new THREE.Float32BufferAttribute(colors, 3)
+    );
+
+    // Create material
+    const material = new THREE.PointsMaterial({
+      size: 8,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.35, // Subtle background wave opacity
+      sizeAttenuation: true
+    });
+
+    // Create points object
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
+
+    let count = 0;
+    let animationId;
+
+    // Animation function
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+
+      const positionAttribute = geometry.attributes.position;
+      const positionsArr = positionAttribute.array;
+
+      let i = 0;
+      for (let ix = 0; ix < AMOUNTX; ix++) {
+        for (let iy = 0; iy < AMOUNTY; iy++) {
+          const index = i * 3;
+
+          // Animate Y position with sine waves
+          positionsArr[index + 1] =
+            Math.sin((ix + count) * 0.3) * 50 +
+            Math.sin((iy + count) * 0.5) * 50;
+
+          i++;
+        }
+      }
+
+      positionAttribute.needsUpdate = true;
+
+      renderer.render(scene, camera);
+      count += 0.05;
+    };
+
+    // Handle window resize
+    const handleResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Start animation
+    animate();
+  }
+
   // Initialize
   async function init() {
     // Hide header immediately so we can fade it in later
@@ -116,6 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial draw & size
     resize();
     window.addEventListener("resize", resize);
+
+    // Start dotted wave background
+    initDottedBackground();
 
     // Fade out preloader
     const introTl = gsap.timeline({

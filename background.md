@@ -11,143 +11,227 @@ Determine the default path for components and styles.
 If default path for components is not /components/ui, provide instructions on why it's important to create this folder
 Copy-paste this component to /components/ui folder:
 ```tsx
-container-scroll-animation.tsx
-"use client";
-import React, { useRef } from "react";
-import { useScroll, useTransform, motion, MotionValue } from "framer-motion";
+dotted-surface.tsx
+'use client';
+import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
+import React, { useEffect, useRef } from 'react';
+import * as THREE from 'three';
 
-export const ContainerScroll = ({
-  titleComponent,
-  children,
-}: {
-  titleComponent: string | React.ReactNode;
-  children: React.ReactNode;
-}) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-  });
-  const [isMobile, setIsMobile] = React.useState(false);
+type DottedSurfaceProps = Omit<React.ComponentProps<'div'>, 'ref'>;
 
-  React.useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => {
-      window.removeEventListener("resize", checkMobile);
-    };
-  }, []);
+export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
+	const { theme } = useTheme();
 
-  const scaleDimensions = () => {
-    return isMobile ? [0.7, 0.9] : [1.05, 1];
-  };
+	const containerRef = useRef<HTMLDivElement>(null);
+	const sceneRef = useRef<{
+		scene: THREE.Scene;
+		camera: THREE.PerspectiveCamera;
+		renderer: THREE.WebGLRenderer;
+		particles: THREE.Points[];
+		animationId: number;
+		count: number;
+	} | null>(null);
 
-  const rotate = useTransform(scrollYProgress, [0, 1], [20, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], scaleDimensions());
-  const translate = useTransform(scrollYProgress, [0, 1], [0, -100]);
+	useEffect(() => {
+		if (!containerRef.current) return;
 
-  return (
-    <div
-      className="h-[60rem] md:h-[80rem] flex items-center justify-center relative p-2 md:p-20"
-      ref={containerRef}
-    >
-      <div
-        className="py-10 md:py-40 w-full relative"
-        style={{
-          perspective: "1000px",
-        }}
-      >
-        <Header translate={translate} titleComponent={titleComponent} />
-        <Card rotate={rotate} translate={translate} scale={scale}>
-          {children}
-        </Card>
-      </div>
-    </div>
-  );
-};
+		const SEPARATION = 150;
+		const AMOUNTX = 40;
+		const AMOUNTY = 60;
 
-export const Header = ({ translate, titleComponent }: any) => {
-  return (
-    <motion.div
-      style={{
-        translateY: translate,
-      }}
-      className="div max-w-5xl mx-auto text-center"
-    >
-      {titleComponent}
-    </motion.div>
-  );
-};
+		// Scene setup
+		const scene = new THREE.Scene();
+		scene.fog = new THREE.Fog(0xffffff, 2000, 10000);
 
-export const Card = ({
-  rotate,
-  scale,
-  children,
-}: {
-  rotate: MotionValue<number>;
-  scale: MotionValue<number>;
-  translate: MotionValue<number>;
-  children: React.ReactNode;
-}) => {
-  return (
-    <motion.div
-      style={{
-        rotateX: rotate,
-        scale,
-        boxShadow:
-          "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
-      }}
-      className="max-w-5xl -mt-12 mx-auto h-[30rem] md:h-[40rem] w-full border-4 border-[#6C6C6C] p-2 md:p-6 bg-[#222222] rounded-[30px] shadow-2xl"
-    >
-      <div className=" h-full w-full  overflow-hidden rounded-2xl bg-gray-100 dark:bg-zinc-900 md:rounded-2xl md:p-4 ">
-        {children}
-      </div>
-    </motion.div>
-  );
-};
+		const camera = new THREE.PerspectiveCamera(
+			60,
+			window.innerWidth / window.innerHeight,
+			1,
+			10000,
+		);
+		camera.position.set(0, 355, 1220);
+
+		const renderer = new THREE.WebGLRenderer({
+			alpha: true,
+			antialias: true,
+		});
+		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setClearColor(scene.fog.color, 0);
+
+		containerRef.current.appendChild(renderer.domElement);
+
+		// Create particles
+		const particles: THREE.Points[] = [];
+		const positions: number[] = [];
+		const colors: number[] = [];
+
+		// Create geometry for all particles
+		const geometry = new THREE.BufferGeometry();
+
+		for (let ix = 0; ix < AMOUNTX; ix++) {
+			for (let iy = 0; iy < AMOUNTY; iy++) {
+				const x = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2;
+				const y = 0; // Will be animated
+				const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
+
+				positions.push(x, y, z);
+				if (theme === 'dark') {
+					colors.push(200, 200, 200);
+				} else {
+					colors.push(0, 0, 0);
+				}
+			}
+		}
+
+		geometry.setAttribute(
+			'position',
+			new THREE.Float32BufferAttribute(positions, 3),
+		);
+		geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+		// Create material
+		const material = new THREE.PointsMaterial({
+			size: 8,
+			vertexColors: true,
+			transparent: true,
+			opacity: 0.8,
+			sizeAttenuation: true,
+		});
+
+		// Create points object
+		const points = new THREE.Points(geometry, material);
+		scene.add(points);
+
+		let count = 0;
+		let animationId: number;
+
+		// Animation function
+		const animate = () => {
+			animationId = requestAnimationFrame(animate);
+
+			const positionAttribute = geometry.attributes.position;
+			const positions = positionAttribute.array as Float32Array;
+
+			let i = 0;
+			for (let ix = 0; ix < AMOUNTX; ix++) {
+				for (let iy = 0; iy < AMOUNTY; iy++) {
+					const index = i * 3;
+
+					// Animate Y position with sine waves
+					positions[index + 1] =
+						Math.sin((ix + count) * 0.3) * 50 +
+						Math.sin((iy + count) * 0.5) * 50;
+
+					i++;
+				}
+			}
+
+			positionAttribute.needsUpdate = true;
+
+			// Update point sizes based on wave
+			const customMaterial = material as THREE.PointsMaterial & {
+				uniforms?: any;
+			};
+			if (!customMaterial.uniforms) {
+				// For dynamic size changes, we'd need a custom shader
+				// For now, keeping constant size for performance
+			}
+
+			renderer.render(scene, camera);
+			count += 0.1;
+		};
+
+		// Handle window resize
+		const handleResize = () => {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		};
+
+		window.addEventListener('resize', handleResize);
+
+		// Start animation
+		animate();
+
+		// Store references
+		sceneRef.current = {
+			scene,
+			camera,
+			renderer,
+			particles: [points],
+			animationId,
+			count,
+		};
+
+		// Cleanup function
+		return () => {
+			window.removeEventListener('resize', handleResize);
+
+			if (sceneRef.current) {
+				cancelAnimationFrame(sceneRef.current.animationId);
+
+				// Clean up Three.js objects
+				sceneRef.current.scene.traverse((object) => {
+					if (object instanceof THREE.Points) {
+						object.geometry.dispose();
+						if (Array.isArray(object.material)) {
+							object.material.forEach((material) => material.dispose());
+						} else {
+							object.material.dispose();
+						}
+					}
+				});
+
+				sceneRef.current.renderer.dispose();
+
+				if (containerRef.current && sceneRef.current.renderer.domElement) {
+					containerRef.current.removeChild(
+						sceneRef.current.renderer.domElement,
+					);
+				}
+			}
+		};
+	}, [theme]);
+
+	return (
+		<div
+			ref={containerRef}
+			className={cn('pointer-events-none fixed inset-0 -z-1', className)}
+			{...props}
+		/>
+	);
+}
 
 
 demo.tsx
-"use client";
-import React from "react";
-import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import Image from "next/image";
+import { DottedSurface } from "@/components/ui/dotted-surface";
+import { cn } from '@/lib/utils';
 
-export function HeroScrollDemo() {
-  return (
-    <div className="flex flex-col overflow-hidden pb-[500px] pt-[1000px]">
-      <ContainerScroll
-        titleComponent={
-          <>
-            <h1 className="text-4xl font-semibold text-black dark:text-white">
-              Unleash the power of <br />
-              <span className="text-4xl md:text-[6rem] font-bold mt-1 leading-none">
-                Scroll Animations
-              </span>
-            </h1>
-          </>
-        }
-      >
-        <Image
-          src={`https://ui.aceternity.com/_next/image?url=%2Flinear.webp&w=3840&q=75`}
-          alt="hero"
-          height={720}
-          width={1400}
-          className="mx-auto rounded-2xl object-cover h-full object-left-top"
-          draggable={false}
-        />
-      </ContainerScroll>
-    </div>
-  );
+export default function DemoOne() {
+ return (
+		<DottedSurface className="size-full">
+			<div className="absolute inset-0 flex items-center justify-center">
+				<div
+					aria-hidden="true"
+					className={cn(
+						'pointer-events-none absolute -top-10 left-1/2 size-full -translate-x-1/2 rounded-full',
+						'bg-[radial-gradient(ellipse_at_center,--theme(--color-foreground/.1),transparent_50%)]',
+						'blur-[30px]',
+					)}
+				/>
+				<h1 className="font-mono text-4xl font-semibold">Dotted Surface</h1>
+			</div>
+		</DottedSurface>
+	);
 }
 
 ```
 
 Install NPM dependencies:
 ```bash
-framer-motion
+three, next-themes
 ```
 
 Implementation Guidelines
