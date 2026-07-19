@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
 
         positions.push(x, y, z);
-        colors.push(0.35, 0.35, 0.35); // Subtle grey cyber theme for dark mode
+        colors.push(0.8, 0.8, 0.8); // Brighter particle color for visibility
       }
     }
 
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
       size: 8,
       vertexColors: true,
       transparent: true,
-      opacity: 0.35, // Subtle background wave opacity
+      opacity: 0.75, // Clear background wave visibility
       sizeAttenuation: true
     });
 

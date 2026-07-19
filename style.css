@@ -132,7 +132,7 @@ body {
   height: 100vh;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.65;
+  opacity: 0.85;
 }
 
 /* Header & Navigation */
@@ -198,6 +198,8 @@ nav a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  mix-blend-mode: screen;
+  opacity: 0.65;
 }
 
 #robot-canvas {
@@ -205,6 +207,7 @@ nav a:hover {
   height: 100%;
   object-fit: contain;
   transform-origin: center center;
+  mix-blend-mode: screen;
 }
 
 /* Scroll Container & Layout */
@@ -444,7 +447,7 @@ nav a:hover {
     calc((var(--pointer-from-top) * 20px) - 6px) 20px -5px;
   transition: transform 1s ease;
   transform: translateZ(0) rotateX(0deg) rotateY(0deg);
-  background: rgba(0, 0, 0, 0.9);
+  background: #000000;
   backface-visibility: hidden;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -476,7 +479,7 @@ nav a:hover {
   inset: 0;
   position: absolute;
   background-image: var(--inner-gradient);
-  background-color: rgba(0, 0, 0, 0.95);
+  background-color: #000000;
   transform: none;
 }
 
@@ -823,7 +826,6 @@ nav a:hover {
   justify-content: center;
   align-items: center;
   padding: 8rem 8vw;
-  background-color: #000;
   z-index: 10;
   position: relative;
 }
